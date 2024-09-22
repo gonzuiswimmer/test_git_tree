@@ -9,22 +9,7 @@ use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MonthlyReportController;
-use App\Models\MonthlyReport;
-use Symfony\Component\HttpKernel\Profiler\Profile;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
-*/
-// Route::get('/dashboard', function () {
-//     return view('dashboard');
-// })->middleware(['auth', 'verified'])->name('dashboard');
 Route::middleware('auth')->group(function () {
 
 
@@ -38,18 +23,15 @@ Route::middleware('auth')->group(function () {
     Route::get('/questions/noAnswers/show', [QuestionController::class, 'noAnswers'])->name('questions.noAnswers');
     Route::resource('/questions', QuestionController::class);
 
-    //コメント関連
     Route::post('/questions/{question}/comments', [QuestionController::class, 'commentStore'])->name('questions.commentStore');
     Route::patch('/questions/{question}/comments/{comment}', [QuestionController::class, 'commentUpdate'])->name('questions.commentUpdate');
     Route::delete('/questions/{question}/{comment}', [QuestionController::class, 'commentDestroy'])->name('questions.commentDestroy');
 
-    // リプライ関連
     Route::post('/questions/{question}/comments/{comment}/reply', [QuestionController::class, 'replyStore'])->name('questions.replyStore');
     Route::patch('/questions/{question}/comments/{reply}/update', [QuestionController::class, 'replyUpdate'])->name('questions.replyUpdate');
     Route::delete('/questions/{question}/comments/{reply}', [QuestionController::class, 'replyDestroy'])->name('questions.replyDestroy');
   });
 
-  //ブログ関連のルーティング
   Route::middleware(['auth'])->group(function () {
     Route::resource('/articles', ArticleController::class)->except(['index', 'show']);
     Route::get('/articles', [ArticleController::class, 'index'])->name('articles.index');
@@ -63,12 +45,10 @@ Route::middleware('auth')->group(function () {
     Route::patch('/articles/{article}/comments/{comment}', [ArticleController::class, 'commentUpdate'])->name('articles.commentUpdate');
     Route::delete('/articles/{article}/{comment}', [ArticleController::class, 'commentDestroy'])->name('articles.commentDestroy');
 
-    // いいね関連のルーティング
     Route::post('/like/{article}', [ArticleController::class, 'likeStore'])->name('articles.likeStore');
     Route::post('/unlike/{article}', [ArticleController::class, 'likeDestroy'])->name('articles.likeDestroy');
   });
 
-  // プロフィール関連のルート
   Route::middleware('auth')
     ->controller(ProfileController::class)
     ->group(function () {
@@ -81,7 +61,6 @@ Route::middleware('auth')->group(function () {
       Route::get('/searchUser', 'searchUser')->name('searchUser');
     });
 
-  // 月報関連のルート
   Route::middleware('auth')->group(function () {
 
     Route::get('/monthly_reports', [MonthlyReportController::class, 'index'])->name('monthlyReport.index');
@@ -95,13 +74,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/monthly_reports/users/{id}/drafts', [MonthlyReportController::class, 'showMyDraftReports'])->name('monthlyReport.showMyDraftReports');
   });
 
-  //コメント関連
+  //コメント関連のルート
   Route::post('/monthly_reports/{monthlyReport}/comments', [MonthlyReportController::class, 'commentStore'])->name('monthlyReport.commentStore');
   Route::patch('/monthly_reports/{monthlyReport}/comments/{comment}', [MonthlyReportController::class, 'commentUpdate'])->name('monthlyReport.commentUpdate');
   Route::delete('/monthly_reports/{monthlyReport}/{comment}', [MonthlyReportController::class, 'commentDestroy'])->name('monthlyReport.commentDestroy');
 
 
-  // 管理者関連のルート
   Route::prefix('/admin')->middleware('judgeAdmin')->group(function () {
     Route::get('/top', [AdminController::class, 'index'])->name('admin.top');
     Route::prefix('/users')->group(function () {
@@ -131,7 +109,7 @@ Route::middleware('auth')->group(function () {
     });
   });
 
-  Route::fallback(function () { //存在しないURLは自動的にTOPにリダイレクトさせる。
+  Route::fallback(function () {
     return redirect(abort(404));
   });
 });
